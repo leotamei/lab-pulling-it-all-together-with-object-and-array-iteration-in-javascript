@@ -1,20 +1,82 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>JS Object Ball Lab</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="node_modules/mocha/mocha.css" />
-  </head>
-  <body>
-    <div id="mocha"></div>
-    <script src="node_modules/mocha/mocha.js"></script>
-    <script src="node_modules/expect/umd/expect.min.js"></script>
-    <script>mocha.setup('bdd');</script>
-    <script src="index.js"></script>
-    <script src="test/indexTest.js"></script>
-    <script>
-      mocha.run();
-    </script>
-  </body>
-</html>
+// Helper Function: Find a player object across all teams
+function findPlayer(playerName) {
+  const data = gameObject();
+  for (const teamKey in data) {
+    const team = data[teamKey];
+    const players = Array.isArray(team.players) ? team.players : Object.values(team.players);
+    const player = players.find(p => (p.playerName || p.name) === playerName);
+    if (player) return player;
+  }
+  return null;
+}
+
+// Helper Function: Find a team object by team name
+function findTeam(teamName) {
+  const data = gameObject();
+  for (const teamKey in data) {
+    const team = data[teamKey];
+    if (team.teamName === teamName) {
+      return team;
+    }
+  }
+  return null;
+}
+
+// 1. Returns the points scored by the given player
+function numPointsScored(playerName) {
+  const player = findPlayer(playerName);
+  return player ? player.points : 0;
+}
+
+// 2. Returns the shoe size of the given player
+function shoeSize(playerName) {
+  const player = findPlayer(playerName);
+  return player ? (player.shoe !== undefined ? player.shoe : player.shoeSize) : null;
+}
+
+// 3. Returns an array of the team's colors
+function teamColors(teamName) {
+  const team = findTeam(teamName);
+  return team ? team.colors : [];
+}
+
+// 4. Returns an array of both team names
+function teamNames() {
+  const data = gameObject();
+  return Object.values(data).map(team => team.teamName);
+}
+
+// 5. Returns an array of jersey numbers for the given team
+function playerNumbers(teamName) {
+  const team = findTeam(teamName);
+  if (!team) return [];
+  const players = Array.isArray(team.players) ? team.players : Object.values(team.players);
+  return players.map(player => player.number);
+}
+
+// 6. Returns an object containing all stats for the given player
+function playerStats(playerName) {
+  return findPlayer(playerName);
+}
+
+// 7. Finds the player with the largest shoe size and returns their rebounds
+function bigShoeRebounds() {
+  const data = gameObject();
+  let maxShoeSize = -1;
+  let rebounds = 0;
+
+  for (const teamKey in data) {
+    const team = data[teamKey];
+    const players = Array.isArray(team.players) ? team.players : Object.values(team.players);
+    
+    for (const player of players) {
+      const currentShoe = player.shoe !== undefined ? player.shoe : player.shoeSize;
+      if (currentShoe > maxShoeSize) {
+        maxShoeSize = currentShoe;
+        rebounds = player.rebounds;
+      }
+    }
+  }
+  
+  return rebounds;
+}
